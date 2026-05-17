@@ -4,6 +4,9 @@ using System.Collections.Generic;
 var currentDirectory = Directory.GetCurrentDirectory();
 var storesDirectory = Path.Combine(currentDirectory, "stores");
 
+var salesTotalDir = Path.Combine(currentDirectory, "salesTotalDir");
+Directory.CreateDirectory(salesTotalDir);
+
 var salesFiles = FindFiles(storesDirectory);
 
 foreach (var file in salesFiles)
@@ -17,14 +20,14 @@ IEnumerable<string> FindFiles(string folderName)
 
     var foundFiles = Directory.EnumerateFiles(folderName, "*", SearchOption.AllDirectories);
 
-    foreach (var file in foundFiles)
-    {
-        var extension = Path.GetExtension(file);
-        if (extension == ".json")
-        {
-            salesFiles.Add(file);
-        }
-    }
+    // foreach (var file in foundFiles)
+    // {
+    //     var extension = Path.GetExtension(file);
+    //     if (extension == ".json")
+    //     {
+    //         salesFiles.Add(file);
+    //     }
+    // }
 
     return salesFiles;
 }
