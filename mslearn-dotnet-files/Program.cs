@@ -9,10 +9,12 @@ Directory.CreateDirectory(salesTotalDir);
 
 var salesFiles = FindFiles(storesDirectory);
 
-foreach (var file in salesFiles)
-{
-    Console.WriteLine(file);
-}
+File.WriteAllText(Path.Combine(salesTotalDir, "totals.txt"), String.Empty);
+
+// foreach (var file in salesFiles)
+// {
+//     Console.WriteLine(file);
+// }
 
 IEnumerable<string> FindFiles(string folderName)
 {
@@ -20,14 +22,14 @@ IEnumerable<string> FindFiles(string folderName)
 
     var foundFiles = Directory.EnumerateFiles(folderName, "*", SearchOption.AllDirectories);
 
-    // foreach (var file in foundFiles)
-    // {
-    //     var extension = Path.GetExtension(file);
-    //     if (extension == ".json")
-    //     {
-    //         salesFiles.Add(file);
-    //     }
-    // }
+    foreach (var file in foundFiles)
+    {
+        var extension = Path.GetExtension(file);
+        if (extension == ".json")
+        {
+            salesFiles.Add(file);
+        }
+    }
 
     return salesFiles;
 }
