@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using System.Collections.Generic;
+using System.Text;
+using Newtonsoft.Json;
 
 var currentDirectory = Directory.GetCurrentDirectory();
 var storesDirectory = Path.Combine(currentDirectory, "stores");
@@ -9,7 +11,13 @@ Directory.CreateDirectory(salesTotalDir);
 
 var salesFiles = FindFiles(storesDirectory);
 
-File.WriteAllText(Path.Combine(salesTotalDir, "totals.txt"), String.Empty);
+var salesTotal = CalculateSalesTotal(salesFiles);
+
+// Write totals.txt
+File.AppendAllText(Path.Combine(salesTotalDir, "totals.txt"), $"{salesTotal}{Environment.NewLine}");
+
+// Write salesSummary.txt
+GenerateSalesSummary(salesFiles, salesTotal, salesTotalDir);
 
 // foreach (var file in salesFiles)
 // {
@@ -33,5 +41,52 @@ IEnumerable<string> FindFiles(string folderName)
 
     return salesFiles;
 }
+
+double CalculateSalesTotal(IEnumerable<string> salesFiles)
+{
+    double salesTotal = 0;
+
+    // Loop over each file path in salesFiles
+    foreach (var file in salesFiles)
+    {      
+        // Read the contents of the file
+        string salesJson = File.ReadAllText(file);
+
+        // Parse the contents as JSON
+        SalesData? data = JsonConvert.DeserializeObject<SalesData?>(salesJson);
+
+        // Add the amount found in the Total field to the salesTotal variable
+        salesTotal += data?.Total ?? 0;
+    }
+
+    return salesTotal;
+}
+
+// Generate summary report
+void GenerateSalesSummary(IEnumerable<string> salesFiles, double salesTotal, string outputDir)
+{
+    StringBuilder reportBuilder = new StringBuilder();
+
+    reportBuilder.AppendLine("Sales Summary");
+    reportBuilder.AppendLine("----------------------------");
+    reportBuilder.AppendLine($" Total Sales: {salesTotal.ToString("C")}");
+    reportBuilder.AppendLine();
+    reportBuilder.AppendLine(" Details:");
+
+    foreach (var file in salesFiles)
+    {
+        string salesJson = File.ReadAllText(file);
+        SalesData? data = JsonConvert.DeserializeObject<SalesData?>(salesJson);
+
+        double fileTotal = data?.Total ?? 0;
+        string fileName = Path.GetFileName(file);
+
+        reportBuilder.AppendLine($"  {fileName}: {fileTotal.ToString("C")}");
+    }
+
+    string reportPath = Path.Combine(outputDir, "salessummary.txt");
+    File.WriteAllText(reportPath, reportBuilder.ToString());
+}
+record SalesData (double Total);
 
 
